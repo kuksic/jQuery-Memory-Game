@@ -1,0 +1,15 @@
+* { font-family: Arial, "Free Sans", sans-serif; padding: 0; margin: 0; }
+
+#boxcard, #index { margin: 0 auto; width: 525px; z-index: 1; }
+	#boxcard div { float: left; width: 100px; height: 100px; background: #d9d9d9; margin: 5px; padding: 5px; border: 1px solid #999; cursor: pointer; -webkit-border-radius: .5em; -moz-border-radius: .5em; border-radius: .5em; -webkit-box-shadow: 0 1px 2px rgba(0,0,0,.5); -moz-box-shadow: 0 1px 2px rgba(0,0,0,.5); box-shadow: 0 1px 2px rgba(0,0,0,.5); z-index: 2; }
+	#boxcard div img { border: none; z-index: 3; }
+	.opacity { opacity: .6; filter: alpha(opacity=60); }
+
+#boxbutton { text-align: center; padding: 20px; }
+	.link { font-size: 18px; color: #ffffff; text-decoration: none; background: #0066cc; padding: 5px 10px; -webkit-border-radius: .5em; -moz-border-radius: .5em; border-radius: .5em; }
+	.link.index { font-size: 24px; color: #ffffff; text-decoration: none; background: #0066cc; padding: 10px 15px; -webkit-border-radius: .5em; -moz-border-radius: .5em; border-radius: .5em; margin-left: 180px; }
+	.link:hover { background: #999; }
+
+h2 { color: #0066cc; width: 300px; margin: 30px auto; }
+#index h2 { height: 130px;  margin-top: 70px; }
+footer p { clear:both; color: #999; width: 525px; margin: 0 auto; margin-top: 30px; }
