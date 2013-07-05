@@ -1,148 +1,162 @@
 /*
-1- Initiate the boards with N images. Each image has a corresponding paired image.
-2- Shuffle Image Location.
-3- When User Clicks One Image
-  3.1- The image opened before the previous image will be closed
-  3.2- Will check to see if the new image is a match with the opened image. If it is, grey out both images.
+1- Initiate the boards with N images. Each image has a corresponding text.
+2- Shuffle Text.
+3- When User Clicks and Drags One Piece of Text.
+  3.1- It can be dropped to a container below the image
+  3.2- Will check to see if the text is a match to the image. If true, increment found.
 4- When all of these are completed, show results.
 */
 
-var boxopened = "";
-var imgopened = "";
 var count = 0;
 var found = 0;
+var msg = '<span id="msg">Great, You Got It</span>';
+var allPairs = [
+	{
+		'http://dummyimage.com/150x100/000/fff&text=11': 'Text For Image 1',
+		'http://dummyimage.com/150x100/000/fff&text=12': 'Text For Image 2',
+		'http://dummyimage.com/150x100/000/fff&text=13': 'Text For Image 3',
+		'http://dummyimage.com/150x100/000/fff&text=14': 'Text For Image 4',
+		'http://dummyimage.com/150x100/000/fff&text=15': 'Text For Image 5',
+		'http://dummyimage.com/150x100/000/fff&text=16': 'Text For Image 6'
+	},
+	{
+		'http://dummyimage.com/150x100/000/fff&text=21': 'Text For Image 1',
+		'http://dummyimage.com/150x100/000/fff&text=22': 'Text For Image 2',
+		'http://dummyimage.com/150x100/000/fff&text=23': 'Text For Image 3',
+		'http://dummyimage.com/150x100/000/fff&text=24': 'Text For Image 4',
+		'http://dummyimage.com/150x100/000/fff&text=25': 'Text For Image 5',
+		'http://dummyimage.com/150x100/000/fff&text=26': 'Text For Image 6'
+	}
+];
 
+
+function init(pair) {
+	$("#next").hide();
+	$("#prev").hide();
+
+	var i = 0;
+	var pairCount = Object.keys(pair).length;
+	var imgContainer = $('<div>').attr('id', 'imgWrapper');
+	var textContainer = $('<div>').attr('id', 'textWrapper');
+  
+	$.each(pair, function(key, val) {
+		var tempImgContainer = $('<div>').attr('id', 'imgContainer'+i).data('pair', i);
+		$('<img>').attr({
+			'src': key,
+			'id': 'img' + i
+		}).data('pair', i).appendTo(tempImgContainer);
+		$('<div>').droppable({
+			accept: '#textWrapper div',
+			hoverClass: 'hovered',
+			drop: handleDrop
+		}).data('pair', i).attr('id', 'textForImg'+i).appendTo(tempImgContainer);
+		imgContainer.append(tempImgContainer);
+		
+		var tempTextContainer = $('<div>').attr('id', 'textContainer'+i).data('pair', i).text(val).draggable({
+			containment: '#boxcard',
+			stack: '#textWrapper div',
+			cursor: 'move',
+			revert: true,
+            snap: true
+		});
+		textContainer.append(tempTextContainer);
+		
+		i++;
+	});
+	$('#boxcard').append(imgContainer).append(textContainer);
+}
 
 function randomFromTo(from, to){
-  return Math.floor(Math.random() * (to - from + 1) + from);
+	return Math.floor(Math.random() * (to - from + 1) + from);
 }
 
 function shuffle() {
-  var children = $("#boxcard").children();
-  var child = $("#boxcard div:first-child");
-  var array_img = [];
-  
-  for (i=0; i<children.length; i++) {
-    array_img[i] = $("#"+child.attr("id")+" img").attr("src");
-    child = child.next();
-  }
-  
-  child = $("#boxcard div:first-child");
-  
-  for (z=0; z<children.length; z++) {
-    randIndex = randomFromTo(0, array_img.length - 1);
-    
-    // set new image
-    $("#"+child.attr("id")+" img").attr("src", array_img[randIndex]);
-    array_img.splice(randIndex, 1);
-    
-    child = child.next();
-  }
+	var children = $("#textWrapper").children().get().sort(function() {
+		return Math.random() - 0.5;
+	});
+	$("#textWrapper").append(children);
 }
 
-function initImg(pair) {
-  var i = 1;
-  var pairCount = Object.keys(pair).length;
+function handleDrop( event, ui ) {
+  $('<audio preload="auto" hidden="true" autoplay><source src="audio/FlipCard.mp3" loop="false"></source><source src="audio/FlipCard.ogg" loop="false"></source>Sorry, Your Browser Does not Support This Audio</audio>').appendTo('body');
+  var dropped = $(this).data('pair');
+  var dragged = ui.draggable.data('pair');
+  count++;
+  $('#count').text(count);
   
-  $.each(pair, function(key, val) {
-    var j = parseInt(i, 10) + parseInt(pairCount, 10);
-
-    var tempImg = $('<img>').attr('src', key);
-    var temp = $('<div>').attr('id', 'card'+i).append(tempImg);
-    $('#boxcard').append(temp);
-    tempImg = $('<img>').attr('src', val);
-    temp = $('<div>').attr('id', 'card'+j).append(tempImg);
-    $('#boxcard').append(temp);
-    i++;
-  });
+  if(dragged == dropped) { //Match - Lock in place and increment found
+    found++;
+    $(this).droppable( 'disable' );
+    ui.draggable.addClass( 'correct' );
+    ui.draggable.draggable( 'disable' );
+    ui.draggable.draggable( 'option', 'revert', false );
+    ui.draggable.position({
+      of: $(this),
+      my: 'left top',
+      at: 'left top'
+    });
+  } else {
+    ui.draggable.draggable( 'option', 'revert', true );
+  }
   
-}
+  if(found == 6) {
+  	if(currentPairIndex == 0) {
+  		$("#next").show();
+  	} else if(parseInt(currentPairIndex, 10) + 1 == allPairs.length) {
+  		$("#prev").show();
+  	} else {
+  		$("#next").show();
+  		$("#prev").show();
+  	}
 
-function resetGame() {
+    $('<audio preload="auto" hidden="true" autoplay><source src="audio/YouWin.mp3" loop="false"></source><source src="audio/YouWin.ogg" loop="false"></source>Sorry, Your Browser Does not Support This Audio</audio>').appendTo('body');
+  }
+} //End of Function
+
+function resetGame(pair) {
+	$("#boxcard").html("");
+  init(pair);
   shuffle();
-  $("img").hide();
-  $("img").removeClass("opacity");
   count = 0;
-  $("#msg").remove();
-  $("#count").html("" + count);
+  found = 0;
   boxopened = "";
   imgopened = "";
-  found = 0;
+	$("#msg").remove();
+  $("#count").html("" + count);
   return false;
 }
 
-$(document).ready(function() {
-/*
-Here are the settings you can adjust:
-1- Put the image paths in pair (one for image, and one for text) in the following format: 'image_file_path':'text_image_path'. So if you put the files in images folder and the file name is img1.jpg, then the path will be 'images/img1.jpg'
-2- All the adjustable text are in msg and link
-*/
-  var pair = {
-    'http://flickholdr.com/100/100/1/': 'http://flickholdr.com/100/100/1/',
-    'http://flickholdr.com/100/100/2/': 'http://flickholdr.com/100/100/2/',
-    'http://flickholdr.com/100/100/3/': 'http://flickholdr.com/100/100/3/',
-    'http://flickholdr.com/100/100/4/': 'http://flickholdr.com/100/100/4/',
-    'http://flickholdr.com/100/100/5/': 'http://flickholdr.com/100/100/5/',
-    'http://flickholdr.com/100/100/6/': 'http://flickholdr.com/100/100/6/',
-    'http://flickholdr.com/100/100/7/': 'http://flickholdr.com/100/100/7/',
-    'http://flickholdr.com/100/100/8/': 'http://flickholdr.com/100/100/8/'
-  };
-  msg = '<span id="msg">Congrats ! You Found All With </span>';
-  var link;
 
-  initImg(pair);
-  $("img").hide();
-  $("#boxcard div").click(openCard);
-  shuffle();
-  
-  function openCard() {
-    
-    id = $(this).attr("id");
-    
-    if ($("#"+id+" img").is(":hidden")) {
-      $("#boxcard div").unbind("click", openCard);
-      
-      $("#"+id+" img").slideDown('fast');
-      
-      if (imgopened === "") {
-        boxopened = id;
-        imgopened = $("#"+id+" img").attr("src");
-        setTimeout(function() {
-          $("#boxcard div").bind("click", openCard);
-        }, 300);
-      } else {
-        currentopened = $("#"+id+" img").attr("src");
-        if (imgopened != currentopened) {
-          // close again
-          setTimeout(function() {
-            $("#"+id+" img").slideUp('fast');
-            $("#"+boxopened+" img").slideUp('fast');
-            boxopened = "";
-            imgopened = "";
-          }, 400);
-        } else {
-          // found
-          $("#"+id+" img").addClass("opacity");
-          $("#"+boxopened+" img").addClass("opacity");
-          found++;
-          boxopened = "";
-          imgopened = "";
-        }
-        
-        setTimeout(function() {
-          $("#boxcard div").bind("click", openCard);
-        }, 400);
-      }
-      
-      
-      count++;
-      $("#count").html("" + count);
-      
-      if (found == Object.keys(pair).length) {
-        $("span.link").prepend(msg);
-        console.log(link);
-        $("#boxbutton").append(link);
-      }
-    }
-  }
+$(document).ready(function() {
+	function prepGame() {
+		console.log(currentPairIndex);
+		pair = allPairs[currentPairIndex];
+		resetGame(pair);
+		shuffle();
+	}
+
+	currentPairIndex = document.getElementsByTagName("body")[0].getAttribute("data-currentpage");
+	prepGame();
+	
+	$("#prev").on("click", function() {
+		currentPairIndex = parseInt(currentPairIndex, 10);
+  	$("body").data("currentpage", --currentPairIndex);
+  	prepGame();
+	});
+	$("#next").on("click", function() {
+		currentPairIndex = parseInt(currentPairIndex, 10);
+  	$("body").data("currentpage", ++currentPairIndex);
+  	prepGame();
+	});
+	$('#reset').on('click', function() {
+		resetGame(pair);
+	});
+
+	/*
+	init(pair);
+	shuffle();
+	
+	$('#reset').on('click', function() {
+		resetGame(pair);
+	});*/
 });

@@ -1,22 +1,26 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script>
+    <script src="jquery.js"></script>
+    <script src="jquery-ui.js"></script>
+    <script src="touch-hack.js"></script>
     <script src="game.js"></script>
-    <link rel="stylesheet" href="style.css" />
+    <link rel="stylesheet" type="text/css" href="jquery-ui.css"  />
+    <link rel="stylesheet" type="text/css" href="style.css" />
   </head>
-  <body>
-    <h2>Memory Game Remake</h2>
-    <div id="boxbutton">
-      <span class="link">
-        <span id="count">0</span>
-        Click
-      </span>
-      &nbsp;
-      <a href="#" class="link" onclick="resetGame();">Reset</a>
-    </div>
-    <div id="boxcard">
-    </div>
-    <footer><p>By Angela</p></footer>
+  <body data-currentpage="0">
+		<div id="index">
+			<h2>Example</h2>
+				<div id="boxbutton">
+				  <span class="link"><span id="count">0</span> Tries</span>
+				  &nbsp;
+				  <a href="#" class="link" id="reset">Reset</a>
+				  <a href="#" class="link" id="prev">Last</a>
+				  <a href="#" class="link" id="next">Next</a>
+				</div>
+				<div id="boxcard">
+				</div>
+  	</div>
+    <footer><p></p></footer>
   </body>
 </html>
